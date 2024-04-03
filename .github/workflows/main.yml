@@ -22,7 +22,7 @@ jobs:
 
     - name: Spin up EC2 instance
       run: |
-        aws ec2 run-instances --image-id ami-0395649fbe870727e  --instance-type t2.micro --key-name ec2 --subnet-id sg-07a2efb79be91d410 --tag-specifications 'ResourceType=instance,Tags=[{Key=Name,Value=my-instance}]'
+        aws ec2 run-instances --image-id ami-0395649fbe870727e  --instance-type t2.micro --key-name ec2 --subnet-id subnet-03be3d25e64acc03d --tag-specifications 'ResourceType=instance,Tags=[{Key=Name,Value=my-instance}]'
 
     - name: Wait for instance to be running
       run: |
