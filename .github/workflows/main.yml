@@ -1,0 +1,45 @@
+name: Spin Up EC2 Instance
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+      
+    - name: Set up AWS credentials
+      uses: aws-actions/configure-aws-credentials@v1
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: us-east-1
+
+    - name: Spin up EC2 instance
+      run: |
+        aws ec2 run-instances --image-id ami-051f8a213df8bc089  --instance-type t2.micro --key-name ec2 --subnet-id sg-07a2efb79be91d410 --tag-specifications 'ResourceType=instance,Tags=[{Key=Name,Value=my-instance}]'
+
+    - name: Wait for instance to be running
+      run: |
+        sleep 30 # Adjust as necessary
+        instance_state=$(aws ec2 describe-instances --filters "Name=tag:Name,Values=my-instance" --query 'Reservations[*].Instances[*].[State.Name]' --output text)
+        while [ "$instance_state" != "running" ]; do
+          sleep 5
+          instance_state=$(aws ec2 describe-instances --filters "Name=tag:Name,Values=my-instance" --query 'Reservations[*].Instances[*].[State.Name]' --output text)
+        done
+        echo "Instance is now running"
+
+    - name: Get instance public IP
+      id: ec2-ip
+      run: |
+        instance_ip=$(aws ec2 describe-instances --filters "Name=tag:Name,Values=my-instance" --query 'Reservations[*].Instances[*].[PublicIpAddress]' --output text)
+        echo "::set-output name=ip::$instance_ip"
+
+    - name: SSH into the instance
+      run: |
+        ssh -i ${{ secrets.EC2_PRIVATE_KEY }} ec2-user@$IP
