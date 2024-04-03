@@ -18,11 +18,11 @@ jobs:
       with:
         aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
         aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-        aws-region: us-east-1
+        aws-region: us-west-2
 
     - name: Spin up EC2 instance
       run: |
-        aws ec2 run-instances --image-id ami-051f8a213df8bc089  --instance-type t2.micro --key-name ec2 --subnet-id sg-07a2efb79be91d410 --tag-specifications 'ResourceType=instance,Tags=[{Key=Name,Value=my-instance}]'
+        aws ec2 run-instances --image-id ami-0395649fbe870727e  --instance-type t2.micro --key-name ec2 --subnet-id sg-07a2efb79be91d410 --tag-specifications 'ResourceType=instance,Tags=[{Key=Name,Value=my-instance}]'
 
     - name: Wait for instance to be running
       run: |
